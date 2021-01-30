@@ -1,0 +1,110 @@
+snippet head "python head"
+#!/usr/bin python3
+# -*- coding:UTF-8 -*-
+# Author: ${1}
+${0}
+endsnippet
+
+snippet pipe "pipeline"
+def open_spider(self,spider):
+    self.connect=pymysql.connect(host='${1}',db='${2}',user='${3}',passwd='${4}',charset='utf8')
+    self.cursor=self.connect.cursor()
+
+
+def process_item(self,item,spider):
+    keys=','.join(item.keys())
+    values=','.join(['%s']*len(item))
+    sql='insert into ${5}(%s) values(%s)  on duplicate key update ' % (keys,values)
+    update=','.join([key + '=%s' for key in item])
+    sql+=update
+    try:
+        self.cursor.execute(sql,tuple(item.values())*2)
+        self.connect.commit()
+        #return item
+    except:
+        self.connect.rollback()
+
+
+def close_spider(self,spider):
+    self.cursor.close()
+    self.connect.close()
+${0}
+endsnippet
+
+snippet mysql "upload_mysql"
+def upload_mysql(connect, cursor, item, table_name):
+    """upload item data to mysql
+
+    :connect: connect to mysql
+    :cursor: cursor to excute sql
+    :item: your data
+    :returns: None
+
+    """
+    keys = ','.join(item.keys())
+    values = ','.join(['%s']*len(item))
+    sql = 'insert into %s(%s) values(%s)  on duplicate key update ' % (
+        table_name, keys, values)
+    update = ','.join([key + '=%s' for key in item])
+    sql += update
+    try:
+        cursor.execute(sql, tuple(item.values())*2)
+        connect.commit()
+    except:
+        connect.rollback()
+		${0}
+endsnippet
+
+snippet connect "connect"
+connect = pymysql.connect(
+    host='${1}', db='${2}', user='${3}',
+    passwd='${4}', charset='utf8')
+${0}
+endsnippet
+
+
+
+snippet style "delete sytyle"
+def delete_style(self, soup, url):
+    while soup.style:
+        soup.style.decompose()
+    while soup.script:
+        soup.script.decompose()
+    # 去除标签中的sytle样式
+    for tag in soup.find_all(self.has_style):
+        try:
+            del tag['style']
+        except:
+            pass
+        try:
+            del tag['width']
+        except:
+            pass
+        try:
+            del tag['face']
+        except:
+            pass
+        try:
+            del tag['size']
+        except:
+            pass
+    if soup.has_attr('style'):
+        del soup['style']
+    # 相对链接替换为绝对链接
+    for tag in soup.find_all(self.has_href):
+        if tag.has_attr('href'):
+            href = tag['href']
+            tag['href'] = parse.urljoin(url, href)
+        if tag.has_attr('src'):
+            src = tag['src']
+            tag['src'] = parse.urljoin(url, src)
+
+
+def has_style(self, tag):
+    return tag.has_attr('style') or tag.has_attr('width') or tag.has_attr('face') or \
+            tag.has_attr('size')
+
+
+def has_href(self, tag):
+    return tag.has_attr('href') or tag.has_attr('src')
+endsnippet
