@@ -74,10 +74,10 @@ set laststatus=2
 set autochdir
 
 
-" 一些方便的映射
+" <leader>前缀键一些方便的映射
 let mapleader=' '
 let g:mapleader=' '
-
+"set timeout timeoutlen=3000  按键启用时间
 " 不用退出就重新加载vimrc
 "map R :source $MYVIMRC<CR>
 "分屏
@@ -223,6 +223,27 @@ endfunc
 
 vnoremap <F7> :call ChineseCount()<cr>
 
+
+"===========中英文切换
+let g:input_toggle = 1
+function! Fcitx2en()
+   let s:input_status = system("fcitx-remote")
+   if s:input_status == 2
+      let g:input_toggle = 1
+      let l:a = system("fcitx-remote -c")
+   endif
+endfunction
+
+function! Fcitx2zh()
+   let s:input_status = system("fcitx-remote")
+   if s:input_status != 2 && g:input_toggle == 1
+      let l:a = system("fcitx-remote -o")
+      let g:input_toggle = 0
+   endif
+endfunction
+
+autocmd InsertLeave * call Fcitx2en()
+"autocmd InsertEnter * call Fcitx2zh()
 
 
 "==============
@@ -753,4 +774,5 @@ sign define vimspectorPC text=🔶 texthl=SpellBad
 " ===nerdcommenter
 " ===
 let g:NERDDefaultAlign = 'start'
+
 
