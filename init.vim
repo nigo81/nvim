@@ -108,8 +108,9 @@ inoremap jk <Esc>`^
 "搜索后取消高亮
 noremap <leader><CR> :nohlsearch<CR>
 " 切换 buffer
-nnoremap <silent> [b :bprevious<CR>
-nnoremap <silent> [n :bnext<CR>
+nnoremap [b :bp<CR>
+nnoremap [n :bn<CR>
+nnoremap [k :bd<CR>
 " use ctrl+h/j/k/l switch window
 noremap <C-h> <C-w>h
 noremap <C-j> <C-w>j
@@ -224,6 +225,7 @@ endfunc
 vnoremap <F7> :call ChineseCount()<cr>
 
 
+
 "===========中英文切换
 let g:input_toggle = 1
 function! Fcitx2en()
@@ -251,6 +253,10 @@ autocmd InsertLeave * call Fcitx2en()
 call plug#begin('~/.vim/plugged')
 
 " 安装插件只需要把 github 地址放到这里重启后执行 :PlugInstall 就好了
+" 搜索
+Plug 'mileszs/ack.vim'
+Plug 'liuchengxu/vim-which-key' " 提示leaderkey
+Plug 'voldikss/vim-floaterm' " 浮动窗口
 Plug 'easymotion/vim-easymotion'
 Plug 'mhinz/vim-startify'
 Plug 'scrooloose/nerdtree'
@@ -293,7 +299,6 @@ Plug 'vimwiki/vimwiki'
 "Plug 'michal-h21/vimwiki-sync'
 Plug 'ctrlpvim/ctrlp.vim' 
 Plug 'mzlogin/vim-markdown-toc'
-Plug 'jkramer/vim-checkbox'
 
 Plug 'nathanaelkane/vim-indent-guides'
 Plug 'junegunn/goyo.vim' " distraction free writing mode
@@ -550,19 +555,11 @@ let g:UltiSnipsUsePythonVersion=3
 " ===
 map <silent> T :TagbarOpenAutoClose<CR>
 
-"
-" ===
-" === vebugger
-" ===
-" === vim-checkbox
-" ===
-let g:checkbox_states = [' ', 'x']
-let g:insert_checkbox_prefix = '* '
-let g:insert_checkbox_suffix = ' '
 
 " ===
 " === coc.nvim
 " ===
+"    \ 'coc-pyright',
 let g:coc_global_extensions = [
 	\ 'coc-actions',
 	\ 'coc-css',
@@ -574,7 +571,6 @@ let g:coc_global_extensions = [
 	\ 'coc-json',
 	\ 'coc-lists',
 	\ 'coc-prettier',
-	\ 'coc-pyright',
 	\ 'coc-python',
 	\ 'coc-jedi',
 	\ 'coc-snippets',
@@ -775,4 +771,42 @@ sign define vimspectorPC text=🔶 texthl=SpellBad
 " ===
 let g:NERDDefaultAlign = 'start'
 
+" ===
+" === arc.vim
+" ===
+cnoreabbrev Ack Ack!
+nnoremap <Leader>a :Ack!<Space>
+
+" ===
+" === which key
+" ===
+nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+set timeoutlen=500
+autocmd! FileType which_key
+autocmd  FileType which_key set laststatus=0 noshowmode noruler
+  \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+
+
+
+call which_key#register('<Space>', "g:which_key_map")
+nnoremap <silent> <leader> :<c-u>WhichKey '<Space>'<CR>
+vnoremap <silent> <leader> :<c-u>WhichKeyVisual '<Space>'<CR>
+
+let g:which_key_map =  {}
+let g:which_key_map.t = {
+      \ 'name' : 'terminal' ,
+      \ ';' : [':FloatermNew --wintype=popup --height=6' , 'terminal'],
+      \ 'f' : [':FloatermNew fzf'        , 'fzf'],
+      \ 't' : [':FloatermToggle'        , 'toggle'],
+      \ 'g' : [':FloatermNew lazygit'        , 'git'],
+      \ 'r' : [':FloatermNew ranger'        , 'ranger'],
+      \ }
+" ===
+" === floaterm
+" ===
+" Configuration example
+"let g:floaterm_keymap_new    = '<leader>tt'
+let g:floaterm_keymap_prev   = '<leader>tu'
+let g:floaterm_keymap_next   = '<leader>tn'
+let g:floaterm_keymap_toggle = '<leader>tt'
 
