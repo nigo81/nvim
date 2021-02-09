@@ -224,77 +224,99 @@ endfunc
 vnoremap <F7> :call ChineseCount()<cr>
 
 " tab 标签相关函数
-set tabline=%!MyTabLine()  " custom tab pages line
-function MyTabLine()
-    let s = '' " complete tabline goes here
-    " loop through each tab page
-    for t in range(tabpagenr('$'))
-        " set highlight
-        if t + 1 == tabpagenr()
+" make tabline in terminal mode
+function! Vim_NeatTabLine()
+    let s = ''
+    for i in range(tabpagenr('$'))
+        " select the highlighting
+        if i + 1 == tabpagenr()
             let s .= '%#TabLineSel#'
         else
             let s .= '%#TabLine#'
         endif
         " set the tab page number (for mouse clicks)
-        let s .= '%' . (t + 1) . 'T'
-        let s .= ' '
-        " set page number string
-        let s .= t + 1 . ' '
-        " get buffer names and statuses
-        let n = ''      "temp string for buffer names while we loop and check buftype
-        let m = 0       " &modified counter
-        let bc = len(tabpagebuflist(t + 1))     "counter to avoid last ' '
-        " loop through each buffer in a tab
-        for b in tabpagebuflist(t + 1)
-            " buffer types: quickfix gets a [Q], help gets [H]{base fname}
-            " others get 1dir/2dir/3dir/fname shortened to 1/2/3/fname
-            if getbufvar( b, "&buftype" ) == 'help'
-                let n .= '[H]' . fnamemodify( bufname(b), ':t:s/.txt$//' )
-            elseif getbufvar( b, "&buftype" ) == 'quickfix'
-                let n .= '[Q]'
-            else
-                let n .= pathshorten(bufname(b))
-            endif
-            " check and ++ tab's &modified count
-            if getbufvar( b, "&modified" )
-                let m += 1
-            endif
-            " no final ' ' added...formatting looks better done later
-            if bc > 1
-                let n .= ' '
-            endif
-            let bc -= 1
-        endfor
-        " add modified label [n+] where n pages in tab are modified
-        if m > 0
-            let s .= '[' . m . '+]'
-        endif
-        " select the highlighting for the buffer names
-        " my default highlighting only underlines the active tab
-        " buffer names.
-        if t + 1 == tabpagenr()
-            let s .= '%#TabLineSel#'
-        else
-            let s .= '%#TabLine#'
-        endif
-        " add buffer names
-        if n == ''
-            let s.= '[New]'
-        else
-            let s .= n
-        endif
-        " switch to no underlining and add final space to buffer list
-        let s .= ' '
+        let s .= '[' . (i+1) . ']'
+        let s .= '%' . (i + 1) . 'T'
+        " the label is made by MyTabLabel()
+        let s .= ' %{Vim_NeatTabLabel(' . (i + 1) . ')} '
     endfor
     " after the last tab fill with TabLineFill and reset tab page nr
     let s .= '%#TabLineFill#%T'
     " right-align the label to close the current tab page
     if tabpagenr('$') > 1
-        let s .= '%=%#TabLineFill#999Xclose'
+        let s .= '%=%#TabLine#%999XX'
     endif
     return s
-endfunction
+endfunc
+ 
+" get a single tab name 
+function! Vim_NeatBuffer(bufnr, fullname)
+    let l:name = bufname(a:bufnr)
+    if getbufvar(a:bufnr, '&modifiable')
+        if l:name == ''
+            return '[No Name]'
+        else
+            if a:fullname 
+                return fnamemodify(l:name, ':p')
+            else
+                return fnamemodify(l:name, ':t')
+            endif
+        endif
+    else
+        let l:buftype = getbufvar(a:bufnr, '&buftype')
+        if l:buftype == 'quickfix'
+            return '[Quickfix]'
+        elseif l:name != ''
+            if a:fullname 
+                return '-'.fnamemodify(l:name, ':p')
+            else
+                return '-'.fnamemodify(l:name, ':t')
+            endif
+        else
+        endif
+        return '[No Name]'
+    endif
+endfunc
+ 
+" get a single tab label
+function! Vim_NeatTabLabel(n)
+    let l:buflist = tabpagebuflist(a:n)
+    let l:winnr = tabpagewinnr(a:n)
+    let l:bufnr = l:buflist[l:winnr - 1]
+    return Vim_NeatBuffer(l:bufnr, 0)
+endfunc
+ 
+" get a single tab label in gui
+function! Vim_NeatGuiTabLabel()
+    let l:num = v:lnum
+    let l:buflist = tabpagebuflist(l:num)
+    let l:winnr = tabpagewinnr(l:num)
+    let l:bufnr = l:buflist[l:winnr - 1]
+    return Vim_NeatBuffer(l:bufnr, 0)
+endfunc
+ 
+" setup new tabline, just like %M%t in macvim
+set tabline=%!Vim_NeatTabLine()
+set guitablabel=%{Vim_NeatGuiTabLabel()}
+set switchbuf=useopen,usetab,newtab
 
+
+" Open Explore in new tab with current directory
+function! Open_Explore(where)
+    let l:path = expand("%:p:h")
+    if l:path == ''
+        let l:path = getcwd()
+    endif
+    if a:where == 0
+        exec 'Explore '.fnameescape(l:path)
+    elseif a:where == 1
+        exec 'vnew'
+        exec 'Explore '.fnameescape(l:path)
+    else
+        exec 'tabnew'
+        exec 'Explore '.fnameescape(l:path)
+    endif
+endfunc
 
 
 "===========中英文切换
@@ -330,7 +352,7 @@ Plug 'liuchengxu/vim-which-key' " 提示leaderkey
 Plug 'voldikss/vim-floaterm' " 浮动窗口
 Plug 'easymotion/vim-easymotion'
 Plug 'mhinz/vim-startify'
-Plug 'scrooloose/nerdtree'
+Plug 'preservim/nerdtree'
 Plug 'vim-airline/vim-airline'
 Plug 'connorholyday/vim-snazzy'
 "Plug 'mhartington/oceanic-next'
@@ -642,6 +664,7 @@ let g:coc_global_extensions = [
 	\ 'coc-lists',
 	\ 'coc-prettier',
 	\ 'coc-python',
+    \ 'coc-pyright',
 	\ 'coc-jedi',
 	\ 'coc-snippets',
 	\ 'coc-sourcekit',
@@ -889,7 +912,7 @@ let g:which_key_map.t = {
 " ===
 " Configuration example
 "let g:floaterm_keymap_new    = '<leader>tt'
-let g:floaterm_keymap_prev   = '<leader>tu'
+let g:floaterm_keymap_prev   = '<leader>tp'
 let g:floaterm_keymap_next   = '<leader>tn'
 let g:floaterm_keymap_toggle = '<leader>tt'
 
