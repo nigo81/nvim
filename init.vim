@@ -90,10 +90,6 @@ map <up> :res -5<CR>
 map <down> :res +5<CR>
 map <left> :vertical resize +5<CR>
 map <right> :vertical resize -5<CR>
-"标签页
-map tu :tabe<CR>
-map ti :-tabnext<CR>
-map tn :+tabnext<CR>
 
 "两下回车跳转到特定符号
 map <leader><leader> <Esc>/<++><CR>:nohlsearch<CR>c4l
@@ -108,9 +104,12 @@ inoremap jk <Esc>`^
 "搜索后取消高亮
 noremap <leader><CR> :nohlsearch<CR>
 " 切换 buffer
-nnoremap [b :bp<CR>
-nnoremap [n :bn<CR>
-nnoremap [k :bd<CR>
+"nnoremap [b :bp<CR>
+"nnoremap [n :bn<CR>
+"nnoremap [k :bd<CR>
+
+
+
 " use ctrl+h/j/k/l switch window
 noremap <C-h> <C-w>h
 noremap <C-j> <C-w>j
@@ -223,6 +222,82 @@ echo cc
 endfunc
 
 vnoremap <F7> :call ChineseCount()<cr>
+
+" tab 相关函数
+
+" make tabline in terminal mode
+function! Vim_NeatTabLine()
+    let s = ''
+    for i in range(tabpagenr('$'))
+        " select the highlighting
+        if i + 1 == tabpagenr()
+            let s .= '%#TabLineSel#'
+        else
+            let s .= '%#TabLine#'
+        endif
+        " set the tab page number (for mouse clicks)
+        let s .= '%' . (i + 1) . 'T'
+        " the label is made by MyTabLabel()
+        let s .= ' %{Vim_NeatTabLabel(' . (i + 1) . ')} '
+    endfor
+    " after the last tab fill with TabLineFill and reset tab page nr
+    let s .= '%#TabLineFill#%T'
+    " right-align the label to close the current tab page
+    if tabpagenr('$') > 1
+        let s .= '%=%#TabLine#%999XX'
+    endif
+    return s
+endfunc
+ 
+" get a single tab name 
+function! Vim_NeatBuffer(bufnr, fullname)
+    let l:name = bufname(a:bufnr)
+    if getbufvar(a:bufnr, '&modifiable')
+        if l:name == ''
+            return '[No Name]'
+        else
+            if a:fullname 
+                return fnamemodify(l:name, ':p')
+            else
+                return fnamemodify(l:name, ':t')
+            endif
+        endif
+    else
+        let l:buftype = getbufvar(a:bufnr, '&buftype')
+        if l:buftype == 'quickfix'
+            return '[Quickfix]'
+        elseif l:name != ''
+            if a:fullname 
+                return '-'.fnamemodify(l:name, ':p')
+            else
+                return '-'.fnamemodify(l:name, ':t')
+            endif
+        else
+        endif
+        return '[No Name]'
+    endif
+endfunc
+ 
+" get a single tab label
+function! Vim_NeatTabLabel(n)
+    let l:buflist = tabpagebuflist(a:n)
+    let l:winnr = tabpagewinnr(a:n)
+    let l:bufnr = l:buflist[l:winnr - 1]
+    return Vim_NeatBuffer(l:bufnr, 0)
+endfunc
+ 
+" get a single tab label in gui
+function! Vim_NeatGuiTabLabel()
+    let l:num = v:lnum
+    let l:buflist = tabpagebuflist(l:num)
+    let l:winnr = tabpagewinnr(l:num)
+    let l:bufnr = l:buflist[l:winnr - 1]
+    return Vim_NeatBuffer(l:bufnr, 0)
+endfunc
+ 
+" setup new tabline, just like %M%t in macvim
+set tabline=%!Vim_NeatTabLine()
+set guitablabel=%{Vim_NeatGuiTabLabel()}
 
 
 
@@ -644,12 +719,6 @@ function! s:cocActionsOpenFromSelected(type) abort
 endfunction
 xmap <silent> <leader>a :<C-u>execute 'CocCommand actions.open ' . visualmode()<CR>
 nmap <silent> <leader>a :<C-u>set operatorfunc=<SID>cocActionsOpenFromSelected<CR>g@
-" coctodolist
-nnoremap <leader>tn :CocCommand todolist.create<CR>
-nnoremap <leader>tl :CocList todolist<CR>
-nnoremap <leader>tu :CocCommand todolist.download<CR>:CocCommand todolist.upload<CR>
-" coc-tasks
-noremap <silent> <leader>ts :CocList tasks<CR>
 " coc-snippets
 imap <C-k> <Plug>(coc-snippets-expand)
 vmap <C-j> <Plug>(coc-snippets-select)
@@ -749,7 +818,24 @@ let g:ctrlp_user_command = 'find %s -type f'        " MacOSX/Linux
 let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']
 
 " ===
-" === vimspector
+" === vimspectornoremap <silent><tab>m :tabnew<cr>
+noremap <silent>tn :tabnew<cr>
+noremap <silent><c-w> :tabclose<cr>
+noremap <silent><tab> :tabn<cr>
+noremap <silent><s-tab> :tabp<cr>
+noremap <silent><leader>1 :tabn 1<cr>
+noremap <silent><leader>2 :tabn 2<cr>
+noremap <silent><leader>3 :tabn 3<cr>
+noremap <silent><leader>4 :tabn 4<cr>
+noremap <silent><leader>5 :tabn 5<cr>
+noremap <silent><leader>6 :tabn 6<cr>
+noremap <silent><leader>7 :tabn 7<cr>
+noremap <silent><leader>8 :tabn 8<cr>
+noremap <silent><leader>9 :tabn 9<cr>
+noremap <silent><leader>0 :tabn 10<cr>
+inoremap <silent><s-tab> <ESC>:tabnext<CR>
+set switchbuf=useopen,usetab,newtab
+
 " ===
 let g:vimspector_enable_mappings = 'HUMAN'
 function! s:read_template_into_buffer(template)
@@ -785,6 +871,8 @@ set timeoutlen=500
 autocmd! FileType which_key
 autocmd  FileType which_key set laststatus=0 noshowmode noruler
   \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+let g:which_key_disable_default_offset = 1
+let g:which_key_use_floating_win = 0
 
 
 
