@@ -388,6 +388,7 @@ Plug 'plasticboy/vim-markdown'
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
 Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle' }
 Plug 'vimwiki/vimwiki'
+Plug 'ferrine/md-img-paste.vim'
 "Plug 'michal-h21/vimwiki-sync'
 Plug 'ctrlpvim/ctrlp.vim' 
 Plug 'mzlogin/vim-markdown-toc'
@@ -919,3 +920,9 @@ let g:floaterm_keymap_prev   = '<leader>tp'
 let g:floaterm_keymap_next   = '<leader>tn'
 let g:floaterm_keymap_toggle = '<leader>tt'
 
+" ===
+" === md-img-paste
+" ===
+let g:mdip_imgdir = 'pictures' 
+let g:mdip_imgname = 'image'
+autocmd FileType markdown nmap <buffer><silent> <leader>p :call mdip#MarkdownClipboardImage()<CR>
