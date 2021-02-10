@@ -98,9 +98,6 @@ map tx :r !figlet
 
 " 使用 jk  进入 normal 模式
 inoremap jk <Esc>`^
-" 使用 leader+w 直接保存
-"inoremap <leader>w <Esc>:w<cr>i
-"noremap <leader>w :w<cr>
 "搜索后取消高亮
 noremap <leader><CR> :nohlsearch<CR>
 " 切换 buffer
@@ -108,6 +105,8 @@ noremap <leader><CR> :nohlsearch<CR>
 "nnoremap [n :bn<CR>
 "nnoremap [k :bd<CR>
 
+" Open the vimrc file anytime
+noremap <LEADER>rc :e ~/.config/nvim/init.vim<CR>
 
 
 " use ctrl+h/j/k/l switch window
@@ -382,7 +381,7 @@ Plug 'RRethy/vim-illuminate'
 Plug 'preservim/nerdcommenter'
 " Plug 'vim-python/python-syntax', { 'for' :['python', 'vim-plug'] }
 " Markdown
-Plug 'mattn/calendar-vim'
+Plug 'itchyny/calendar.vim'
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
@@ -400,8 +399,6 @@ Plug 'kshenoy/vim-signature'
 Plug 'SirVer/ultisnips'
 "Plug 'honza/vim-snippets'
 Plug 'majutsushi/tagbar', { 'on': 'TagbarOpenAutoClose' }
-" Error checking
-Plug 'w0rp/ale'
 "auto format python
 Plug 'tell-k/vim-autopep8'
 " Other useful utilities
@@ -409,22 +406,10 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 call plug#end()
 "设置成自定义的主题snazzy
-" ===
-" === theme
-" ===
-"syntax enable
-"set t_Co=256
-"if (has("termguicolors"))
-"set termguicolors
-"endif
-"colorscheme OceanicNext
-"let g:airline_theme='oceanicnext'
 
 let g:SnazzyTransparent = 1
 color snazzy
 
-"let g:airline_theme='one'
-"colorscheme one
 
 
 "背景透明
@@ -443,9 +428,9 @@ nmap tt :NERDTreeToggle<cr>
 " === vimwiki
 " ===
 
-let g:vimwiki_list = [{'path': '~/vimwiki/',
-                  \ 'syntax': 'markdown', 'ext': '.md'}]
-"let g:vimwiki_list = [{'path': '~/vimwiki/','ext': '.md'}]
+"let g:vimwiki_list = [{'path': '~/vimwiki/',
+"                  \ 'syntax': 'markdown', 'ext': '.md'}]
+let g:vimwiki_list = [{'path': '~/vimwiki/','ext': '.md'}]
 
 let g:vim_markdown_math = 1
 let g:vimwiki_global_ext = 0
@@ -538,47 +523,6 @@ let g:mkdp_port = ''
 let g:mkdp_page_title = '「${name}」'
 
 
-" ===
-" === Python-syntax
-" ===
-"let g:python_highlight_all = 1
-
-
-"===
-"=== ale
-"===
-
-let g:ale_set_highlights = 0
-"自定义error和warning图标
-let g:ale_sign_error = '✗'
-let g:ale_sign_warning = '⚡'
-"在vim自带的状态栏中整合ale
-let g:ale_statusline_format = ['✗ %d', '⚡ %d', '✔ OK']
-""打开文件时不进行检查
-let g:ale_lint_on_enter = 0
-
-"<Leader>s触发/关闭语法检查
-nmap <Leader>s :ALEToggle<CR>
-"<Leader>d查看错误或警告的详细信息
-nmap <Leader>a :ALEDetail<CR>
-"使用clang对c和c++进行语法检查，对python使用pylint进行语法检查
-let g:ale_linters = {
-  \   'c++': ['clang'],
-  \   'c': ['clang'],
-  \   'python': ['pylint'],
-  \}
-
-
-
-"let b:ale_linters = ['pylint']
-let b:ale_fixers = ['autopep8','yapf']
-"let b:ale_warn_about_trailing_whitespace = 0
-"let g:ale_set_highlights = 0
-"highlight ALEWarning ctermbg=DarkMagenta
-let g:ale_echo_msg_error_str = 'E'
-let g:ale_echo_msg_warning_str = 'W'
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-"let g:ale_echo_cursor = 0 "可以解决光标见的问题，但是下方不会有提示信息
 "===
 "=== vim-table-mode
 "===
@@ -673,8 +617,6 @@ let g:coc_global_extensions = [
 	\ 'coc-snippets',
 	\ 'coc-sourcekit',
 	\ 'coc-syntax',
-	\ 'coc-tasks',
-	\ 'coc-todolist',
 	\ 'coc-translator',
 	\ 'coc-tslint-plugin',
 	\ 'coc-tsserver',
@@ -926,3 +868,11 @@ let g:floaterm_keymap_toggle = '<leader>tt'
 let g:mdip_imgdir = 'pictures' 
 let g:mdip_imgname = 'image'
 autocmd FileType markdown nmap <buffer><silent> <leader>p :call mdip#MarkdownClipboardImage()<CR>
+
+" ===
+" === calendar
+" ===
+let g:calendar_frame = 'default'
+let g:calendar_cache_directory = '~/vimwiki/calendar.vim'
+nnoremap <silent> <leader>wc :Calendar<CR>
+nnoremap <silent> <leader>wl :Calendar -view=clock<CR>
