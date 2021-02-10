@@ -235,7 +235,7 @@ function! Vim_NeatTabLine()
             let s .= '%#TabLine#'
         endif
         " set the tab page number (for mouse clicks)
-        let s .= '[' . (i+1) . ']'
+        let s .=  (i+1) " 设置tab序号
         let s .= '%' . (i + 1) . 'T'
         " the label is made by MyTabLabel()
         let s .= ' %{Vim_NeatTabLabel(' . (i + 1) . ')} '
@@ -254,7 +254,7 @@ function! Vim_NeatBuffer(bufnr, fullname)
     let l:name = bufname(a:bufnr)
     if getbufvar(a:bufnr, '&modifiable')
         if l:name == ''
-            return '[No Name]'
+            return '*'
         else
             if a:fullname 
                 return fnamemodify(l:name, ':p')
@@ -274,7 +274,7 @@ function! Vim_NeatBuffer(bufnr, fullname)
             endif
         else
         endif
-        return '[No Name]'
+        return '*'
     endif
 endfunc
  
@@ -298,7 +298,6 @@ endfunc
 " setup new tabline, just like %M%t in macvim
 set tabline=%!Vim_NeatTabLine()
 set guitablabel=%{Vim_NeatGuiTabLabel()}
-set switchbuf=useopen,usetab,newtab
 
 
 " Open Explore in new tab with current directory
@@ -433,6 +432,7 @@ hi Normal ctermfg=252 ctermbg=none
 " 插件相关配置
 " 禁止 startify 自动切换目录
 let g:startify_change_to_dir = 0
+noremap <leader>st :Startify<CR>
 
 " nerdtree
 nmap tv :NERDTreeFind<cr>
@@ -449,6 +449,9 @@ let g:vimwiki_list = [{'path': '~/vimwiki/',
 let g:vim_markdown_math = 1
 let g:vimwiki_global_ext = 0
 autocmd FileType vimwiki set syntax=markdown
+
+nmap <F21> <Plug>VimwikiNextLink " 将默认的<tab>来找下一个link替换成其它键
+nmap <F22> <Plug>VimwikiPrevLink " 将默认的<tab>来找上一个link替换成其它键
 
 " ===
 " === MarkdownPreview
@@ -837,7 +840,7 @@ let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standar
 " ===
 " === vimspectornoremap <silent><tab>m :tabnew<cr> 标签
 set guitablabel=%N/\ %t\ %M
-noremap <silent>tu :tabnew<cr>
+noremap <silent>tu :tabnew<cr>:Startify<cr>
 noremap <silent>td :tabclose<cr>
 noremap <silent><tab> :tabn<cr>
 noremap <silent><s-tab> :tabp<cr>
