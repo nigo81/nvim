@@ -69,7 +69,7 @@ let &t_SI = "\<Esc>]50;CursorShape=1\x7"
 let &t_SR = "\<Esc>]50;CursorShape=2\x7"
 let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 "状态栏
-set laststatus=2
+set laststatus=0 " 状态栏距离底部的行数
 "当前文件目录下执行东西
 set autochdir
 
