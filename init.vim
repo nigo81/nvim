@@ -151,6 +151,8 @@ com! FormatJSONPy2Utf8 %!python -c "import json, sys, collections; print json.du
 vnoremap <F12> :call CreateTable()<CR>
 func! CreateTable() range
 let line = getline('.')
+let l = line('.')
+let start = l
 let word_list = split(line,',')
 let output = ["create table xxx ("]
 let i =0
@@ -164,9 +166,16 @@ for word in word_list
         call add(output,word . " varchar(255),")
 
     endif
+    let l = l+1
 endfor
 call add(output,");")
-let faild = append(0,output)
+call append(start,output)
+let l = l+3
+call setline(l ,"")
+call setline(l+1 ,"load data infile <++>")
+call setline(l+2,"into table <++>")
+call setline(l+3,"fields terminated by '<++>' enclosed by <++>")
+call setline(l+4,"lines terminated by '<++>' ignore 1 lines;")
 "return line
 endfunc
 
