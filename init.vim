@@ -147,13 +147,16 @@ com! FormatJSONPy2Utf8 %!python -c "import json, sys, collections; print json.du
 "==========
 " Compile function
 "
-map <F12> :call CreateTable()<CR>
-func! CreateTable()
+" SQL建表 可以将一行表头转换为导入语句
+vnoremap <F12> :call CreateTable()<CR>
+func! CreateTable() range
 let line = getline('.')
 let word_list = split(line,',')
 let output = ["create table xxx ("]
 let i =0
 for word in word_list
+    let word = substitute(word,'^"','','')
+    let word = substitute(word,'"$','','')
     let i=i+1
     if i == len(word_list)
         call add(output,word . " varchar(255)")
@@ -166,6 +169,22 @@ call add(output,");")
 let faild = append(0,output)
 "return line
 endfunc
+
+" 将Navicat数据粘贴后转成表格,这里range不加的话会重复执行
+vnoremap <F11> :call Navicat2md()<cr>
+function! Navicat2md() range 
+    let first = line("'<")
+    let last = line("'>")
+    let l = first
+    for line in getline(first,last)
+        "echo l
+        "echo line
+        let text =  substitute(line, '\t', '|', "g")
+        let text = "|" . text . "|"
+        call setline(l, text)
+        let l = l + 1
+    endfor
+endfunction
 
 
 map <F5> :call CompileRunGcc()<CR>
