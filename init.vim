@@ -388,6 +388,8 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 if !has('nvim')
 Plug 'rhysd/vim-healthcheck'
 endif
+"生成连续编号
+Plug 'JikkuJose/vim-visincr'
 
 " Python
 Plug 'vim-scripts/indentpython.vim'
@@ -639,9 +641,7 @@ let g:coc_global_extensions = [
 	\ 'coc-json',
 	\ 'coc-lists',
 	\ 'coc-prettier',
-	\ 'coc-python',
     \ 'coc-pyright',
-	\ 'coc-jedi',
 	\ 'coc-snippets',
 	\ 'coc-sourcekit',
 	\ 'coc-syntax',
